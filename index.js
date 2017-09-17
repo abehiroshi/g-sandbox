@@ -12,9 +12,12 @@ exports.accept = function(req, res) {
     result = 'No topic';
   }
 
-  const data = req.body.data;
+  let data = req.body.data;
   if (!data) {
     result = 'No data';
+  }
+  if (typeof(data) != 'string') {
+      data = JSON.stringify(data);
   }
   const attributes = req.body.attributes || {};
   
@@ -26,7 +29,7 @@ exports.accept = function(req, res) {
 const PubSub = require(`@google-cloud/pubsub`);
 
 function publishMessage(topic, data, attributes) {
-  console.log(`topic: ${topic} data: ${JSON.stringify(data)} attributes: ${JSON.stringify(attributes)}`);
+  console.log(`topic: ${topic} data: ${data} attributes: ${JSON.stringify(attributes)}`);
   
   const pubsub = PubSub();
 
