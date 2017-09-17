@@ -1,11 +1,13 @@
 const PubSub = require(`@google-cloud/pubsub`);
 
 exports.acceptHttp = function(req, res) {
-  let data = ''
+  let data
   if (typeof(req.body) === 'string') {
-    data = req.body
+    data = Buffer.from(req.body)
   } else if (Buffer.isBuffer(req.body)) {
     data = req.body
+  } else {
+    data = Buffer.from('')
   }
   
   PubSub().topic('receive-http')
