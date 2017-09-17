@@ -30,7 +30,7 @@ function publishMessage(topic, data, attributes) {
   
   const pubsub = PubSub();
 
-  return pubsub.topic(topic).publisher().publish({data, attributes})
+  return pubsub.topic(topic).publisher().publish(Buffer.from(data), attributes)
     .then(() => {
       console.log(`Message published.`);
       return true;
