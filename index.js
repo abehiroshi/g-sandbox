@@ -5,16 +5,14 @@
  * @param {!Object} res Cloud Function response context.
  */
 exports.accept = function(req, res) {
-  let result = 'Success';
-
   const topic = req.body.topic;
   if (!topic) {
-    result = 'No topic';
+    return res.status(200).send('No topic');
   }
 
   let data = req.body.data;
   if (!data) {
-    result = 'No data';
+    return res.status(200).send('No data');
   }
   if (typeof(data) != 'string') {
       data = JSON.stringify(data);
@@ -23,7 +21,7 @@ exports.accept = function(req, res) {
   
   publishMessage(topic, data, attributes);
   
-  res.status(200).send(result);
+  return res.status(200).send('Success');
 };
 
 const PubSub = require(`@google-cloud/pubsub`);
