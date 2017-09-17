@@ -7,7 +7,7 @@ exports.acceptHttp = function(req, res) {
   } else if (Buffer.isBuffer(req.body)) {
     data = req.body
   } else {
-    data = Buffer.from('')
+    data = Buffer.from(JSON.stringify(req.body))
   }
   
   PubSub().topic('receive-http')
@@ -17,8 +17,7 @@ exports.acceptHttp = function(req, res) {
       method: req.method,
       url: req.originalUrl,
       headers: JSON.stringify(req.headers),
-      query: JSON.stringify(req.query),
-      body: JSON.stringify(req.body)
+      query: JSON.stringify(req.query)
     })
     .catch(err => console.error(err))
   
