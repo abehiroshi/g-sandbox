@@ -4,45 +4,29 @@
  * @param {!Object} req Cloud Function request context.
  * @param {!Object} res Cloud Function response context.
  */
-exports.accept = function(req, res) {
-  const topic = req.body.topic;
-  if (!topic) {
-    return res.status(200).send('No topic');
-  }
-
-  let data = req.body.data;
-  if (!data) {
-    return res.status(200).send('No data');
-  }
-  if (typeof(data) != 'string') {
-      data = JSON.stringify(data);
-  }
-  const attributes = req.body.attributes || {};
-  
-  publishMessage(topic, data, attributes);
-  
-  return res.status(200).send('Success');
+exports.acceptHttp = function(req, res) {
+  publishMessage('receive-http', req.body, {
+    protocol: req.protocol,
+    method: req.method,
+    url: req.originalUrl,
+    query: req.query,
+    headers: req.headers
+  })
+  return res.status(200).end();
 };
 
 const PubSub = require(`@google-cloud/pubsub`);
 
 function publishMessage(topic, data, attributes) {
-  console.log(`topic: ${topic} data: ${data} attributes: ${JSON.stringify(attributes)}`);
-  
-  const pubsub = PubSub();
-
-  return pubsub.topic(topic).publisher().publish(Buffer.from(data), attributes)
-    .then(() => {
-      console.log(`Message published.`);
-      return true;
-    })
-    .catch(err => {
-      console.error(err);
-      return false;
-    });
-}
-
-exports.acceptHttpPost = function(req, res) {
-  publishMessage('receive-http', JSON.stringify(req.body), {protocol: 'http', method: 'post'})
-  return res.status(200).send('Success')
+  if (!Buffer.isBuffer(data)) {
+    if (typeof(data) === 'string') {
+      data = Buffer.from(data)
+    } else {
+      data = Buffer.from(JSON.stringify(data))
+    }
+  }
+  return PubSub().topic(topic)
+    .publisher()
+    .publish(data, attributes)
+    .catch(err => console.error(err))
 }
