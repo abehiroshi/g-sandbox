@@ -16,8 +16,8 @@ exports.acceptHttp = function(req, res) {
       protocol: req.protocol,
       method: req.method,
       url: req.originalUrl,
-      query: req.query,
       headers: JSON.stringify(req.headers),
+      query: JSON.stringify(req.query),
       body: JSON.stringify(req.body)
     })
     .catch(err => console.error(err))
