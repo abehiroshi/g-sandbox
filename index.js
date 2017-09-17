@@ -27,9 +27,9 @@ exports.acceptHttp = function(req, res) {
 
 exports.acceptPubsub = function(event, callback) {
   if (Buffer.isBuffer(event.data.data)) {
-    console.log(`data: '<Buffer>' attributes: ${event.data.attributes}`)
+    console.log(`data: '<Buffer>' attributes: ${JSON.stringify(event.data.attributes)}`)
   } else {
-    console.log(`data: ${event.data.data} attributes: ${event.data.attributes}`)
+    console.log(`data: ${Buffer.from(event.data.data, 'base64').toString()} attributes: ${JSON.stringify(event.data.attributes)}`)
   }
   callback()
 }
