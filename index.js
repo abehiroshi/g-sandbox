@@ -41,3 +41,8 @@ function publishMessage(topic, data, attributes) {
       return false;
     });
 }
+
+exports.acceptHttpPost = function(req, res) {
+  publishMessage('receive-http', JSON.stringify(req.body), {protocol: 'http', method: 'post'})
+  return res.status(200).send('Success')
+}
