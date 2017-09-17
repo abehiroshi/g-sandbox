@@ -24,7 +24,7 @@ exports.publishMessage = function(topicName, data) {
   const publisher = topic.publisher();
   
   const dataBuffer = Buffer.from(JSON.stringify(data));
-  return publisher.publish(dataBuffer)
+  return publisher.publish(dataBuffer, data)
     .then((results) => {
       const messageId = results[0];
 
