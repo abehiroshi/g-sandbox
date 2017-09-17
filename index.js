@@ -5,31 +5,40 @@
  * @param {!Object} res Cloud Function response context.
  */
 exports.accept = function(req, res) {
-  let topicName = req.body.topicName || 'talk';
-  let data = req.body;
+  let result = 'Success';
+
+  const topic = req.body.topic;
+  if (!topic) {
+    result = 'No topic';
+  }
+
+  const data = req.body.data;
+  if (!data) {
+    result = 'No data';
+  }
+  const attributes = req.body.attributes || {};
   
-  exports.publishMessage(topicName, data);
+  publishMessage(topic, data, attributes);
   
-  res.status(200).send('Success');
+  res.status(200).send(result);
 };
 
 const PubSub = require(`@google-cloud/pubsub`);
 
-exports.publishMessage = function(topicName, data) {
-  console.log(`topic: ${topicName} data: ${data}`)
+function publishMessage(topic, data, attributes) {
+  console.log(`topic: ${topic} data: ${JSON.stringify(data)} attributes: ${JSON.stringify(attributes)}`);
   
   const pubsub = PubSub();
 
-  const topic = pubsub.topic(topicName);
+  const topic = pubsub.topic(topic);
   const publisher = topic.publisher();
-  
-  const dataBuffer = Buffer.from(JSON.stringify(data));
-  return publisher.publish(dataBuffer, data)
-    .then((results) => {
-      const messageId = results[0];
-
-      console.log(`Message ${messageId} published.`);
-
-      return messageId;
+  return publisher.publish({data, attributes})
+    .then(() => {
+      console.log(`Message published.`);
+      return true;
+    })
+    .catch(err => {
+      console.error(err);
+      return false;
     });
 }
