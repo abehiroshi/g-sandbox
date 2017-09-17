@@ -23,7 +23,7 @@ exports.publishMessage = function(topicName, data) {
   const topic = pubsub.topic(topicName);
   const publisher = topic.publisher();
   
-  const dataBuffer = Buffer.from(data);
+  const dataBuffer = Buffer.from(JSON.stringify(data));
   return publisher.publish(dataBuffer)
     .then((results) => {
       const messageId = results[0];
