@@ -5,14 +5,31 @@
  * @param {!Object} res Cloud Function response context.
  */
 exports.accept = function(req, res) {
-  // Example input: {"message": "Hello!"}
-  if (req.body.message === undefined) {
-    // This is an error case, as "message" is required.
-    console.log(req.body);
-    res.status(200).send('No message defined!');
-  } else {
-    // Everything is okay.
-    console.log(req.body.message);
-    res.status(200).send('Success: ' + req.body.message);
-  }
+  let topicName = req.body.topicName || 'talk';
+  let data = req.body;
+  
+  exports.publishMessage(topicName, data);
+  
+  res.status(200).send('Success');
 };
+
+const PubSub = require(`@google-cloud/pubsub`);
+
+exports.publishMessage = function(topicName, data) {
+  console.log(`topic: ${topicName} data: ${data}`)
+  
+  const pubsub = PubSub();
+
+  const topic = pubsub.topic(topicName);
+  const publisher = topic.publisher();
+  
+  const dataBuffer = Buffer.from(data);
+  return publisher.publish(dataBuffer)
+    .then((results) => {
+      const messageId = results[0];
+
+      console.log(`Message ${messageId} published.`);
+
+      return messageId;
+    });
+}

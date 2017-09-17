@@ -11,5 +11,8 @@
     "url": "git+https://github.com/abehiroshi/g-sandbox.git"
   },
   "author": "Abe Hiroshi",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/pubsub": "^0.14.1"
+  }
 }
