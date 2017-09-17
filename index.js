@@ -1,9 +1,5 @@
-/**
- * Responds to any HTTP request that can provide a "message" field in the body.
- *
- * @param {!Object} req Cloud Function request context.
- * @param {!Object} res Cloud Function response context.
- */
+const PubSub = require(`@google-cloud/pubsub`);
+
 exports.acceptHttp = function(req, res) {
   publishMessage('receive-http', req.body, {
     protocol: req.protocol,
@@ -13,9 +9,13 @@ exports.acceptHttp = function(req, res) {
     headers: req.headers
   })
   return res.status(200).end();
-};
+}
 
-const PubSub = require(`@google-cloud/pubsub`);
+exports.acceptPubsub = function(event, callback) {
+  console.log(Buffer.from(event.data.data, 'base64').toString())
+  console.log(event.data.attributes)
+  callback()
+}
 
 function publishMessage(topic, data, attributes) {
   if (!Buffer.isBuffer(data)) {
