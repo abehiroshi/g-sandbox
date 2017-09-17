@@ -1,32 +1,33 @@
 const PubSub = require(`@google-cloud/pubsub`);
 
 exports.acceptHttp = function(req, res) {
-  publishMessage('receive-http', req.body, {
-    protocol: req.protocol,
-    method: req.method,
-    url: req.originalUrl,
-    query: req.query,
-    headers: req.headers
-  })
+  let data = ''
+  if (typeof(req.body) === 'string') {
+    data = req.body
+  } else if (Buffer.isBuffer(req.body)) {
+    data = req.body
+  }
+  
+  PubSub().topic('receive-http')
+    .publisher()
+    .publish(data, {
+      protocol: req.protocol,
+      method: req.method,
+      url: req.originalUrl,
+      query: req.query,
+      headers: req.headers,
+      body: req.body
+    })
+    .catch(err => console.error(err))
+  
   return res.status(200).end();
 }
 
 exports.acceptPubsub = function(event, callback) {
-  console.log(Buffer.from(event.data.data, 'base64').toString())
-  console.log(event.data.attributes)
-  callback()
-}
-
-function publishMessage(topic, data, attributes) {
-  if (!Buffer.isBuffer(data)) {
-    if (typeof(data) === 'string') {
-      data = Buffer.from(data)
-    } else {
-      data = Buffer.from(JSON.stringify(data))
-    }
+  if (Buffer.isBuffer(event.data.data)) {
+    console.log(`data: '<Buffer>' attributes: ${event.data.attributes}`)
+  } else {
+    console.log(`data: ${event.data.data} attributes: ${event.data.attributes}`)
   }
-  return PubSub().topic(topic)
-    .publisher()
-    .publish(data, attributes)
-    .catch(err => console.error(err))
+  callback()
 }
